@@ -13,9 +13,6 @@ import os
 # Set experiment
 mlflow.set_experiment("winequality-red-ci")
 
-# End any active run sebelumnya
-mlflow.end_run()
-
 # Load dataset
 df = pd.read_csv("winequality-red_preprocessing/train.csv")
 df_test = pd.read_csv("winequality-red_preprocessing/test.csv")
@@ -26,8 +23,11 @@ y_train = df["label"]
 X_test = df_test.drop(columns=["label"])
 y_test = df_test["label"]
 
+# Ambil run_id dari environment (di-inject oleh MLflow Project)
+run_id = os.environ.get("MLFLOW_RUN_ID")
+
 # Train model
-with mlflow.start_run():
+with mlflow.start_run(run_id=run_id):
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
 
