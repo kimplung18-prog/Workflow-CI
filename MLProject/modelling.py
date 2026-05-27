@@ -10,9 +10,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# Set experiment
-mlflow.set_experiment("winequality-red-ci")
-
 # Load dataset
 df = pd.read_csv("winequality-red_preprocessing/train.csv")
 df_test = pd.read_csv("winequality-red_preprocessing/test.csv")
@@ -23,11 +20,8 @@ y_train = df["label"]
 X_test = df_test.drop(columns=["label"])
 y_test = df_test["label"]
 
-# Ambil run_id dari environment (di-inject oleh MLflow Project)
-run_id = os.environ.get("MLFLOW_RUN_ID")
-
 # Train model
-with mlflow.start_run(run_id=run_id):
+with mlflow.start_run():
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
 
@@ -39,16 +33,13 @@ with mlflow.start_run(run_id=run_id):
     f1        = f1_score(y_test, y_pred, average="weighted", zero_division=0)
     cm        = confusion_matrix(y_test, y_pred)
 
-    # Log metriks
     mlflow.log_metric("accuracy", acc)
     mlflow.log_metric("precision", precision)
     mlflow.log_metric("recall", recall)
     mlflow.log_metric("f1_score", f1)
 
-    # Log model
     mlflow.sklearn.log_model(model, "model")
 
-    # Simpan confusion matrix
     os.makedirs("artifacts", exist_ok=True)
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
