@@ -13,6 +13,9 @@ import os
 # Set experiment
 mlflow.set_experiment("winequality-red-ci")
 
+# End any active run sebelumnya
+mlflow.end_run()
+
 # Load dataset
 df = pd.read_csv("winequality-red_preprocessing/train.csv")
 df_test = pd.read_csv("winequality-red_preprocessing/test.csv")
